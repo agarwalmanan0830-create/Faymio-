@@ -18,6 +18,9 @@ async function buildAndSmoke(
 ) {
   const env: NodeJS.ProcessEnv = {
     ...process.env,
+    // Keep migrations on the same guarded local database even if the shell
+    // also contains connection aliases for a hosted development database.
+    DIRECT_URL: process.env.DATABASE_URL,
     DEMO_MODE: "true",
     ALLOW_DEMO_IN_PRODUCTION: "true",
     NODE_ENV: "production",
