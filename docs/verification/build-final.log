@@ -1,0 +1,53 @@
+
+> faymio@1.0.0 build
+> next build
+
+   ▲ Next.js 15.5.9
+   - Environments: .env
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully in 44s
+   Linting and checking validity of types ...
+   Collecting page data ...
+   Generating static pages (0/17) ...
+   Generating static pages (4/17)
+   Generating static pages (8/17)
+   Generating static pages (12/17)
+ ✓ Generating static pages (17/17)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                                 Size  First Load JS
+┌ ○ /                                      162 B         102 kB
+├ ○ /_not-found                            162 B         102 kB
+├ ○ /activity                            2.94 kB         136 kB
+├ ƒ /api/ai/assistant                      162 B         102 kB
+├ ƒ /api/ai/brief                          162 B         102 kB
+├ ƒ /api/assignments/[id]                  162 B         102 kB
+├ ƒ /api/briefs                            162 B         102 kB
+├ ƒ /api/campaigns                         162 B         102 kB
+├ ƒ /api/campaigns/[id]                    162 B         102 kB
+├ ƒ /api/campaigns/[id]/assignments        162 B         102 kB
+├ ƒ /api/campaigns/[id]/export             162 B         102 kB
+├ ƒ /api/campaigns/[id]/notes              162 B         102 kB
+├ ƒ /api/campaigns/[id]/tasks              162 B         102 kB
+├ ƒ /api/talent                            162 B         102 kB
+├ ƒ /api/talent/[id]                       162 B         102 kB
+├ ƒ /api/tasks/[id]                        162 B         102 kB
+├ ƒ /api/workspace                         162 B         102 kB
+├ ○ /assistant                            6.4 kB         140 kB
+├ ○ /briefs                              6.49 kB         136 kB
+├ ○ /campaigns                           2.05 kB         140 kB
+├ ƒ /campaigns/[id]                      10.4 kB         144 kB
+├ ○ /dashboard                            110 kB         248 kB
+├ ○ /icon.svg                                0 B            0 B
+├ ○ /settings                            3.73 kB         134 kB
+└ ○ /talent                              7.49 kB         141 kB
++ First Load JS shared by all             102 kB
+  ├ chunks/255-dc5f45a243dc3a80.js       45.6 kB
+  ├ chunks/4bd1b696-409494caf8c83275.js  54.2 kB
+  └ other shared chunks (total)          2.01 kB
+
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand

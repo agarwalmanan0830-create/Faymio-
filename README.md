@@ -1,830 +1,145 @@
+# FAYMIO
 
-You are an expert founding engineer, full-stack developer, AI product architect, and award-winning UI/UX designer.
+**The Professional World of Entertainment.** An agency operations MVP for managing creator campaigns, deliverables, approvals, tasks, and commercial follow-ups.
 
-Your task is to design and BUILD a fully functional, professional, modern, investor-demo-ready MVP web application for my startup named FAYMIO.
+## Open Faymio on your computer
 
-Do not produce only a proposal, wireframe, UI mockup, or static HTML landing page. Build the actual working application in the current project, including the frontend, backend, database, real CRUD functionality, sample data, and AI integration architecture.
+`localhost` refers to the computer running the server. A server inside a cloud workspace cannot be reached through your own computer's localhost address. Download or clone this project to your computer first; this workspace does not expose a public preview URL.
 
-Work autonomously within the project, make sensible technical decisions, and complete the implementation as far as the available environment allows.
+### Windows quickstart
 
-==================================================
-1. ABOUT THE STARTUP
-==================================================
+1. Install the current [Node.js LTS](https://nodejs.org) (22.12 or newer).
+2. [Download this branch as a ZIP](https://github.com/agarwalmanan0830-create/Faymio-/archive/refs/heads/codex/faymio-mvp.zip), sign into your GitHub account if asked, and choose **Extract All**.
+3. Inside the extracted project folder, double-click **start-faymio.bat**. Keep the terminal window open while using Faymio.
 
-Company name: FAYMIO
-Tagline: The Professional World of Entertainment.
-Secondary tagline: Where Talent Meets Opportunity.
+The launcher prepares the local environment, installs missing dependencies, applies migrations, seeds the demo, starts Faymio on your computer, and opens the browser after both the workspace API and dashboard respond. The first launch can take a few minutes. Existing `.env` files and saved records are preserved.
 
-Faymio is an AI-powered professional talent operations platform, designed to eventually connect three main groups:
+On macOS, open `start-faymio.command`. From a terminal on any supported computer, run this inside the downloaded project folder:
 
-1. TALENT
-   Influencers, actors, commercial models, UGC creators, and other creative professionals.
+```bash
+npm run demo
+```
 
-2. COMMERCIAL BUYERS
-   Brands, advertisers, production houses, studios, and companies hiring creative talent.
+![Faymio demo overview](docs/screenshots/overview.png)
 
-3. INDUSTRY INTERMEDIARIES
-   Talent agencies, casting directors, artist managers, and creative production teams.
+The image above is a screenshot of the working demonstration workspace.
 
-The long-term product vision combines:
-- Professional talent portfolios
-- Verified professional identities
-- Commercial talent discovery and matching
-- AI-assisted campaign and casting operations
-- Scheduling and collaboration
-- Booking and commercial workflow management
-- Verified work histories
+## Run locally
 
-However, DO NOT attempt to build the entire future marketplace in this MVP.
+Requires **Node.js 22.12+**, npm, and a writable local disk. No paid service is required.
 
-Our immediate business goal is to sell AI-powered workflow software to talent agencies and production teams.
+```bash
+npm ci
+cp .env.example .env
+npm run setup
+npm run dev
+```
 
-FAYMIO MVP 1.0 must solve this problem:
+Open **http://localhost:3000/dashboard**. `setup` generates Prisma Client, applies checked-in migrations, and seeds the demonstration organization. The seed is repeatable: it preserves an already seeded workspace and its edits. To start a fresh demonstration, stop the app, remove `prisma/dev.db`, and run `npm run setup` again. This deletes all local saved data; export anything you need first.
 
-"Agencies spend too much time manually coordinating creator campaigns, tracking deliverables, managing approvals, following up with talent, and preparing project reports."
+The demo opens as the fictional Atelier Talent Agency workspace with a server-selected demonstration administrator. **This is demo access, not production authentication.** All seeded names, portfolios, brands, commercial records, and work histories are fictional. Seed portfolio links use `example.com` and `example.test`.
 
-The MVP should make this work faster, clearer, and easier to manage.
+To test the optimized local build:
 
-It must be genuinely useful even when the AI API is not configured.
+```bash
+npm run build
+ALLOW_DEMO_IN_PRODUCTION=true npm start
+```
 
-==================================================
-2. DESIGN DIRECTION
-==================================================
+`NODE_ENV=production` refuses all workspace APIs unless `DEMO_MODE=true` **and** `ALLOW_DEMO_IN_PRODUCTION=true`. The second flag is an explicit opt-in for an insecure demonstration identity. Do not enable it for real customer data or expose this demo to an untrusted network. For normal local use, use `npm run dev`.
 
-Faymio must have a unique, modern, premium, professional visual identity.
+## Implemented
 
-The design should feel like a polished commercial SaaS product with entertainment-industry sophistication.
+- **Overview `/dashboard`**: persisted KPI calculations, campaign completion, deliverable status chart, upcoming deadlines, priority queues, campaign filtering/search, recent activity, and a clearly labeled deterministic status summary. KPI drill-downs show the matching stored records across campaigns.
+- **Campaigns `/campaigns` and `/campaigns/[id]`**: create, edit, and archive campaigns; assign existing talent; track invitations and confirmations; submit URLs; request changes, approve, and publish; set deadlines; add/complete tasks; internal notes; record invoice amounts and payment status; follow-up flags; history and CSV export.
+- **Talent `/talent`**: create, edit, search, category/city/availability filters, profile details, manually verified flag, links, rate ranges, assignment history, and confirmation before deletion. Deletion archives the profile and retains campaign history.
+- **Briefs `/briefs`**: paste a brief, extract structured fields, edit them, see missing information, regenerate, use manual entry, save/load database drafts, and explicitly review before campaign creation.
+- **Operations assistant `/assistant`**: database-grounded approvals, overdue work, payment follow-ups, summaries, and copyable reminder drafts with supporting records and campaign links. Unsupported requests and unknown campaigns are explained clearly. No external messages are sent.
+- **Activity and Settings**: searchable activity, campaign filter, theme preference, workspace information, JSON export, and explicit demonstration/security notes.
+- Responsive desktop/mobile layouts, original Faymio mark, semantic theme tokens, self-hosted DM Sans/Manrope fonts, light/dark mode, Radix accessible dialogs, validation, skeletons, empty/error states, and toast feedback.
 
-Take high-level inspiration from:
-- Linear: clean product design and navigation
-- Notion: clarity and organized workflows
-- Vercel: technical sophistication
-- Apple: typography, whitespace and refinement
-- Modern editorial fashion platforms: professional imagery and tasteful presentation
+## Architecture
 
-Do NOT clone these products.
+Next.js 15 App Router, React 19, TypeScript, Tailwind CSS, Radix primitives with local shadcn-style components, Lucide, Recharts 2, Prisma 6, SQLite, Zod, Sonner, Vitest, and Playwright. Stable pinned dependency versions and `package-lock.json` make installation repeatable. Recharts 2 is retained for its compatible React dashboard API; evaluate Recharts 3 and current security-patched dependencies before production deployment.
 
-Brand personality:
-- Premium
-- Modern
-- Creative
-- Trustworthy
-- Intelligent
-- International
-- Minimalistic
-- Professional
+```text
+src/app/                 Routes, screens, and server API handlers
+src/components/          Shared UI, navigation, campaign/talent/AI styling
+src/lib/ai/              Brief parser, provider adapter, read-only operations
+src/lib/                 Prisma client, metrics, formatting utilities
+src/server/              Organization context, validation, transaction services
+src/types/               Serialized application contracts
+prisma/schema.prisma     Relational model and organization ownership fields
+prisma/migrations/       Checked-in SQLite migration
+prisma/demo-data.ts      Shared, repeatable demonstration fixture
+prisma/seed.ts           CLI seed entrypoint
+scripts/migrate.mjs      Safe SQLite file preparation and migration runner
+tests/                   Isolated database, AI, and browser journey tests
+```
 
-COLOR SYSTEM
+All reads and mutations resolve the organization on the server. Browser-supplied organization IDs do not establish access. Campaign/talent/assignment/task IDs and nested relations are checked for ownership. Related workflow changes and activity insertion use database transactions. Assignment updates include an optimistic concurrency check. Important business records are soft archived.
 
-Primary background:
-#F7F7F5
+**Money:** integer paise throughout the database and APIs. ₹2,00,000 is `20_000_000` paise. Values must be nonnegative integers within the Prisma Int range. **Dates:** stored UTC; display uses Indian dates and Asia/Kolkata. A deadline is overdue once its exact stored timestamp has passed. The seed uses dates relative to the day it is first run; its overdue records stay overdue until completed.
 
-Dark surfaces:
-#12141C
+The PostgreSQL migration path requires changing the Prisma datasource, generating PostgreSQL migrations, migrating/validating data, and reviewing indexes/concurrency behavior. The checked-in SQL is SQLite-specific.
 
-Primary accent:
-#7967ED
+## The seeded GlowLab campaign
 
-Secondary lavender:
-#D9D2FF
+| Stored records                                    | Count |
+| ------------------------------------------------- | ----: |
+| Assigned creators                                 |    20 |
+| Confirmed creators                                |    16 |
+| Published deliverables                            |    11 |
+| Submitted content awaiting approval               |     4 |
+| Additional confirmed creator with incomplete work |     1 |
+| Invited creators                                  |     4 |
+| Separate open overdue task records                |     2 |
+| Separate unpaid payment records marked follow-up  |     3 |
 
-Primary text:
-#171821
+Budget is ₹2,00,000 and duration is 15 days. Three other fictional campaigns and additional talent make the workspace browsable. The other campaigns start without assignments; new work naturally changes workspace totals. Completion means **published**, not merely submitted or approved. These counts are verified against actual relational records in integration tests.
 
-Muted text:
-#87908F
+## Workflow safeguards
 
-Borders:
-#E7E7EA
+Talent must be confirmed before submitting work. Submitted/published deliverables require an HTTP(S) URL. Required content approval follows submission; requesting changes returns work to in-progress; approval allows publication. Published work cannot move backward, and approved/published submission URLs are locked to preserve review history. Existing assignments lock the campaign's approval policy. Paid invoice records cannot also require follow-up. A payment status is only a record; it never initiates a payment. CSV cells are quoted and spreadsheet-formula prefixes neutralized.
 
-Success:
-#118A64
+## AI configuration
 
-Warning:
-#C98929
+The complete workflow works without credentials. The UI labels **Demo AI mode** when deterministic parsing is used. The brief parser handles common Indian budget expressions, creator counts, duration, approval requirements, and missing-information warnings. It is intentionally bounded; review and edit extracted fields.
 
-Error:
-#D55252
+Optional server-only environment variables:
 
-Create semantic design tokens so changing the theme is easy.
+```dotenv
+OPENAI_API_KEY="your-server-side-key"
+OPENAI_MODEL="gpt-4o-mini"
+```
 
-Use a modern professional font such as Geist or Inter.
+The provider adapter calls OpenAI on the server with JSON-schema structured output, validates results using Zod, applies a 20-second brief-extraction timeout and a 15-second read-operation classification timeout, and falls back to a labeled deterministic response on provider failures. The model never writes to the database. The user explicitly reviews a brief before creating a campaign.
 
-TYPOGRAPHY
-- Large, elegant page titles
-- Strong hierarchy
-- Comfortable spacing
-- Small but highly legible metadata
-- Clear labels
-- Consistent number formatting
-- No cluttered or excessively decorative UI
+Supported operational questions use deterministic database queries. A configured model can classify other wording into a validated supported read-only operation; factual answers are still computed from stored records. API keys are never returned to the browser. AI request logs store operation/mode/status metadata rather than full private prompts. AI endpoints have an in-process per-organization limit of 20 requests/minute. Production needs a shared durable rate limiter and provider budget controls.
 
-LAYOUT
-- Fixed or collapsible left sidebar on desktop
-- Compact top navigation
-- Main dashboard content area
-- Responsive mobile navigation
-- Beautiful cards
-- Subtle borders and shadows
-- Professional tables
-- Clear empty states
-- Loading skeletons
-- Useful toast notifications
-- Keyboard-accessible controls
-- Light and dark mode
+## Checks
 
-Create a simple custom Faymio wordmark and an original geometric symbol.
+```bash
+npm run typecheck
+npm run lint
+npm test
+npm run test:launcher
+npm run build
+npm run test:e2e
+```
 
-Do not use another company's logo or copyrighted brand asset.
+Unit/integration tests use temporary SQLite databases, apply the actual migration, and run the shared seed. Browser tests use a separate `/tmp/faymio-e2e.db` and port 3001; they do not alter the demonstration database. They use `/usr/bin/chromium` when available; otherwise run `npx playwright install chromium` once.
 
-Use realistic initials or clean professional avatar placeholders where profile photographs are unavailable.
+See `TEST_RESULTS.md` for checks actually executed in this environment and their results. The live OpenAI provider requires a real key and is not claimed as end-to-end verified here.
 
-Prioritize elegant, high-quality execution over excessive animation.
+## Deliberately deferred
 
-==================================================
-3. TECHNOLOGY STACK
-==================================================
+Public talent signup, social feed, public marketplace/casting, autonomous booking, contracts/e-signatures, negotiations, payment gateways, outbound messaging infrastructure, social scraping/metrics, client portals, asset uploads, and live identity verification. A verified flag only means an agency user manually marked the record verified.
 
-Use a practical modern full-stack TypeScript architecture.
+## Before onboarding real customers
 
-Preferred stack:
+Replace the demonstration context with authenticated, verified organization membership; add roles and permissions, invitation/session lifecycle, tenant-aware uniqueness policy, authorization review, and retention/export/deletion policy. Deploy with TLS and a private database, secure secrets, request controls, shared rate limiting, backups/restore drills, observability, error monitoring, and dependency/security maintenance. Review CSRF protection and origin/proxy handling for the chosen hosting environment. The current origin check validates an explicit browser Origin against the incoming Host and protocol (or a server-configured `APP_ORIGIN`), ignoring forwarded headers; demo identity is not an authentication or comprehensive CSRF layer. Add durable job infrastructure only when notifications or background operations are introduced.
 
-Frontend and backend:
-- Next.js with App Router
-- TypeScript
-- React
-- Tailwind CSS
+SQLite and a single application process suit local evaluation. Use managed PostgreSQL, migrate and validate data, load-test real agency volumes, add pagination, and review transaction concurrency before production. The MVP models one deliverable, approval, and invoice record per talent assignment; multiple assets, file versions, and split payments are deferred. Payment/invoice data is operational tracking, not accounting or reconciliation. Approval history is retained through activity logs; attachment versioning and granular review comments are future work.
 
-UI:
-- shadcn/ui
-- Lucide icons
-- Recharts for dashboard charts
-
-Database:
-- Prisma ORM
-- SQLite for easy local development
-- Organization-scoped schema designed for later PostgreSQL migration
-
-Validation:
-- Zod
-
-Testing:
-- Vitest for important logic
-- Playwright for critical end-to-end journeys where feasible
-
-AI:
-- Server-side AI provider adapter
-- Optional OpenAI API integration through environment variables
-- Deterministic demo fallback when no API credentials are available
-
-Use compatible, stable dependency versions.
-
-If a preferred package has a compatibility problem, select a stable alternative and document the decision.
-
-Never expose API keys in browser code.
-
-Never hard-code secrets.
-
-Use environment variables and provide a .env.example file.
-
-Do not require paid infrastructure for the local demo.
-
-==================================================
-4. PRIMARY MVP SCREENS
-==================================================
-
-Build FIVE core application screens.
-
-SCREEN 1: PROJECT OVERVIEW
-
-Route:
- /dashboard
-
-This is the main operations command center.
-
-Display:
-
-KPI cards:
-- Active campaigns
-- Total assigned talent
-- Confirmed talent
-- Completed deliverables
-- Pending approvals
-- Overdue tasks
-- Payments needing follow-up
-
-Charts:
-- Campaign progress
-- Deliverables by status
-- Upcoming deadlines
-
-Additional sections:
-- Recent activity
-- Priority action queue
-- Campaign list
-- Quick actions
-- AI-generated status summary
-
-Example action queue:
-"2 creator submissions are overdue."
-"4 content approvals require attention."
-"3 payments need follow-up."
-
-The statistics must be calculated from persisted records, not hard-coded display text.
-
-Clicking any KPI should open a relevant filtered list or page.
-
-SCREEN 2: TALENT WORKSPACE
-
-Route:
- /talent
-
-Build a professional talent management database.
-
-A record can represent:
-- Influencer
-- Model
-- Actor
-- UGC creator
-
-Fields:
-- Full name
-- Professional category
-- Email
-- Phone (optional)
-- City
-- Social or portfolio links
-- Primary content category
-- Languages
-- Management or representation
-- Commercial rate range (optional)
-- Availability status
-- Professional notes
-- Verification status (manual flag only)
-- Created and updated timestamps
-
-Features:
-- Add talent
-- Edit talent
-- Delete talent with confirmation
-- Search
-- Filter by category
-- Filter by city
-- Filter by availability
-- Talent detail drawer or profile page
-- View assigned campaigns
-- View project history
-
-Do not pretend talent identities or social metrics have been independently verified.
-
-A verification badge should appear only if a human has explicitly marked the record verified.
-
-For MVP, talent records are managed by agencies. Do not build public talent registration or social networking.
-
-SCREEN 3: AI BRIEF ASSISTANT
-
-Route:
- /briefs
-
-The user can paste a brand brief in plain text.
-
-Example:
-
-"GlowLab Skincare is launching a new vitamin C serum. We need 20 beauty and lifestyle creators. Budget ₹2,00,000. Campaign duration 15 days. Each creator should publish one Instagram reel. Brand approval is required before publishing."
-
-The AI assistant should extract:
-
-- Brand name
-- Campaign name
-- Campaign objective
-- Campaign budget
-- Required talent category
-- Number of creators
-- Deliverables
-- Approval requirements
-- Timeline
-- Important missing information
-
-Display the extracted information in an editable structured form.
-
-The user must REVIEW AND CONFIRM before saving.
-
-Allow creating a new campaign from the confirmed brief.
-
-Add:
-- Clear AI processing status
-- Validation feedback
-- Missing-information warnings
-- Regenerate option
-- Manual entry fallback
-- Save draft
-- Create campaign button
-
-AI DESIGN:
-
-When OPENAI_API_KEY is available:
-- Call the model on the server.
-- Require schema-validated structured output.
-- Never let the model directly modify database records.
-- Use suitable rate limiting and error handling.
-
-When OPENAI_API_KEY is missing:
-- Provide a clearly labeled "Demo AI mode".
-- Use deterministic parsing and sample fixtures.
-- Keep the complete workflow usable.
-
-Do not present simulated AI responses as live model-generated intelligence.
-
-SCREEN 4: EXECUTION TRACKER
-
-Route:
- /campaigns/[id]
-
-This is the most important operational screen.
-
-Display campaign details:
-- Name
-- Brand
-- Budget
-- Timeline
-- Campaign manager
-- Current status
-- Assigned creators
-- Deliverables
-- Pending approvals
-- Outstanding tasks
-
-Create a table with:
-
-Talent
-Category
-Assigned task
-Due date
-Assignment status
-Deliverable status
-Approval status
-Payment status
-Actions
-
-Possible assignment statuses:
-- Invited
-- Confirmed
-- Declined
-- Cancelled
-
-Possible deliverable statuses:
-- Not started
-- In progress
-- Submitted
-- Approved
-- Published
-
-Approval statuses:
-- Not required
-- Pending
-- Approved
-- Changes requested
-
-Features:
-- Assign talent to campaign
-- Update status
-- Submit deliverable URL
-- Review submission
-- Approve or request changes
-- Add deadline
-- Create task
-- Add internal note
-- Mark follow-up needed
-- Record invoice amount
-- Track payment status
-- View campaign history
-- Export campaign CSV
-
-When a status changes:
-- Persist the change
-- Update related KPIs
-- Add an activity log entry
-- Refresh the relevant UI
-
-Include an approvals queue with working actions.
-
-Never send messages or make financial payments automatically.
-
-Implement sensible transition validation so impossible workflow states are not accepted.
-
-SCREEN 5: AI OPERATIONS COPILOT
-
-Route:
- /assistant
-
-Create an AI-assisted operations workspace with a premium chat-style interface.
-
-The user should be able to ask questions such as:
-
-"Which creators are delaying the skincare campaign?"
-
-"Show pending approvals."
-
-"Which payments need follow-up?"
-
-"Prepare a summary for the brand."
-
-"Draft reminders for creators who are overdue."
-
-"Summarize this week's campaign progress."
-
-The assistant should use actual application database records for factual answers.
-
-For structured questions, prefer deterministic database queries over model guesses.
-
-The AI may convert a user request into a supported read-only operation, but the application must validate it.
-
-Display:
-- User message
-- Assistant response
-- Related campaign references
-- Relevant supporting records
-- Suggested next actions
-
-Allow suggested follow-up text to be copied.
-
-Do NOT automatically send emails, WhatsApp messages, or external messages.
-
-If the request cannot be answered from available data, the assistant must say so clearly.
-
-When no AI key exists:
-- Support a useful set of predefined operational questions
-- Show relevant database-backed responses
-- Label the experience as Demo AI mode
-- Avoid pretending arbitrary free-text requests were genuinely answered by a live LLM
-
-==================================================
-5. SAMPLE CAMPAIGN
-==================================================
-
-Seed the application with a fictional campaign:
-
-Campaign:
-GlowLab Vitamin C Launch
-
-Brand:
-GlowLab Skincare
-
-Campaign budget:
-₹2,00,000
-
-Duration:
-15 days
-
-Total assigned creators:
-20
-
-Confirmed creators:
-16
-
-Completed/published creator deliverables:
-11
-
-Pending content approvals:
-4
-
-Overdue operational tasks:
-2
-
-Payments requiring follow-up:
-3
-
-IMPORTANT:
-These numbers must arise consistently from actual seeded database records.
-
-Suggested assignment distribution:
-- 11 confirmed creators with published deliverables
-- 4 confirmed creators with submitted deliverables awaiting approval
-- 1 additional confirmed creator with incomplete work
-- 4 creators still invited
-
-Total = 20
-
-Represent the 2 overdue tasks and 3 payment follow-ups using separate task and payment records linked to those creators.
-
-Define "completed" as successfully published or otherwise explicitly completed according to the campaign requirements.
-
-Use a consistent reference date or dates relative to the current system date so overdue calculations work correctly.
-
-Create realistic fictional Indian creator names and fictional portfolio data.
-
-Clearly mark all seeded data as DEMO DATA.
-
-Never imply these are real celebrities, clients or bookings.
-
-Also seed:
-- A few other fictional campaigns
-- Relevant talent profiles
-- Sample tasks
-- Activity records
-- Draft follow-up messages
-
-==================================================
-6. DATABASE MODEL
-==================================================
-
-Create a well-structured relational database.
-
-Core entities should include:
-
-Organization
-User
-Talent
-Brand
-Campaign
-CampaignAssignment
-Deliverable
-Approval
-Task
-PaymentRecord
-ActivityLog
-AIRequestLog
-
-Support organization_id fields to prepare for future multi-tenant usage.
-
-Every organization-scoped query and mutation must consistently enforce organization ownership.
-
-Do not trust organization IDs directly supplied by the browser without verifying access.
-
-For the initial local demo, a single seeded demonstration organization is acceptable.
-
-Clearly isolate demo access from any future real-customer deployment.
-
-Avoid advertising demo-only access as production-grade authentication.
-
-Document what additional authentication, authorization, security and infrastructure work is required before onboarding real customers.
-
-Store dates consistently.
-
-Represent money in integer paise or another documented fixed-precision format, not JavaScript floating-point values.
-
-Support soft deletion or appropriate audit retention for important business records.
-
-==================================================
-7. USER EXPERIENCE
-==================================================
-
-Create a polished onboarding and demonstration experience.
-
-Initial app load:
-- Faymio branding
-- Sample agency workspace
-- Overview dashboard populated with demonstration data
-
-Left navigation:
-- Overview
-- Campaigns
-- Talent
-- AI Briefs
-- AI Assistant
-- Activity
-- Settings
-
-The five primary screens must be complete.
-
-Activity and Settings may be simpler supporting screens, but must not contain dead-end controls.
-
-Dashboard interactions:
-- Search campaigns
-- Filter campaigns
-- Open campaign detail
-- Create a campaign
-- Assign talent
-- Change statuses
-- Open the approvals queue
-- Review activity
-- Generate brief summary
-- Draft a follow-up
-- Export data
-
-Implement:
-- Toast notifications
-- Confirmation dialogs
-- Form validation
-- Saving indicators
-- Useful empty states
-- Error states
-- Accessible labels
-- Keyboard navigation
-- Responsive layouts
-
-Support rupee currency formatting and Indian date conventions.
-
-Use tasteful transitions.
-
-No fake buttons or controls that imply functionality they do not actually have.
-
-If a feature is unavailable, clearly label it as planned rather than presenting it as active.
-
-==================================================
-8. IMPORTANT PRODUCT RULES
-==================================================
-
-The product must be realistic about what AI can and cannot do.
-
-AI may:
-- Analyze supplied briefs
-- Structure data
-- Summarize campaign progress
-- Identify overdue tasks
-- Draft messages
-- Suggest operational next steps
-
-AI must NOT:
-- Automatically sign contracts
-- Automatically negotiate binding commitments
-- Execute payments
-- Send messages without approval
-- Publicly disclose private talent data
-- Make sensitive personal judgments
-- Fabricate booking history or social metrics
-
-Maintain a human approval step for commercial or externally visible actions.
-
-The demo must work without scraping Instagram or using unofficial platform APIs.
-
-Do not build a real payment gateway, social feed, public casting marketplace, messaging infrastructure, or autonomous booking agent.
-
-Do not introduce unnecessary microservices.
-
-Keep the architecture clean enough for later expansion without overengineering.
-
-==================================================
-9. INVESTOR-DEMO QUALITY
-==================================================
-
-This product will be shown to:
-- Potential co-founders
-- Talent managers
-- Agency owners
-- Casting directors
-- Brands
-- Early investors
-
-It should feel credible and commercially useful.
-
-Prioritize:
-- Consistent branding
-- Smooth navigation
-- Impressive but readable dashboards
-- Working interactions
-- Beautiful status components
-- Realistic sample workflows
-- Clear value proposition
-- Minimal visual clutter
-
-Include a discreet "Demo workspace" label.
-
-Do not fabricate testimonials, customer counts, company revenue, partnership logos, or live AI claims.
-
-Use premium microcopy.
-
-Avoid unnecessary AI buzzwords in the UI.
-
-==================================================
-10. TESTING AND COMPLETION
-==================================================
-
-Build the application, not just its design.
-
-Ensure the following flows actually work:
-
-TEST A:
-Load the overview dashboard and verify all campaign metrics match the database.
-
-TEST B:
-Create a new talent profile, edit it, search for it, and confirm persistence.
-
-TEST C:
-Paste a campaign brief, review extracted fields, modify them, and create a campaign.
-
-TEST D:
-Assign talent to an existing campaign and verify the assignment appears in the tracker.
-
-TEST E:
-Submit a deliverable, approve it, and verify campaign progress updates.
-
-TEST F:
-Create an overdue task and verify it appears in the dashboard action queue.
-
-TEST G:
-Ask the operations assistant for pending approvals and receive a response grounded in real stored records.
-
-TEST H:
-Reload the browser and confirm previously saved changes persist.
-
-TEST I:
-Verify mobile layout and desktop layout.
-
-TEST J:
-Verify that one organization cannot access another organization's records through manipulated IDs, if multi-organization access is implemented.
-
-Write appropriate unit and integration tests.
-
-If Playwright is available, create and run smoke tests for the main user journey.
-
-Fix build, TypeScript, runtime and database errors before finishing.
-
-==================================================
-11. DELIVERABLES
-==================================================
-
-At completion provide:
-
-1. A working local application.
-2. All source code organized into sensible folders.
-3. Database schema and migrations.
-4. Seed script.
-5. Functional dashboard with sample data.
-6. All five core screens.
-7. AI adapter and safe demo fallback.
-8. Responsive design.
-9. .env.example.
-10. README with installation and run instructions.
-11. Test commands and test results.
-12. A concise list of features implemented.
-13. A list of intentionally deferred features.
-14. Known limitations and production-readiness requirements.
-
-Prefer a clean modular structure such as:
-
-src/
-  app/
-  components/
-    layout/
-    dashboard/
-    campaigns/
-    talent/
-    briefs/
-    assistant/
-    ui/
-  lib/
-    ai/
-    db/
-    validation/
-    permissions/
-    utilities/
-  server/
-    services/
-    repositories/
-  types/
-
-prisma/
-  schema.prisma
-  seed.ts
-
-tests/
-
-public/
-
-You can modify this structure if technically appropriate.
-
-==================================================
-12. DEVELOPMENT INSTRUCTIONS
-==================================================
-
-First inspect the current project.
-
-If it already contains a useful application, preserve reusable work rather than deleting everything unnecessarily.
-
-If it is empty, scaffold the application.
-
-Create a concise implementation plan, then execute it.
-
-Implement the project in working increments:
-1. Project setup and visual system
-2. Database and seeded demonstration data
-3. Dashboard and navigation
-4. Talent and campaign CRUD
-5. Brief assistant
-6. Execution and approvals
-7. Operations copilot
-8. Testing and polish
-
-Do not stop after creating a plan.
-
-Do not ask unnecessary product-design questions.
-Make reasonable decisions based on the requirements.
-
-Do not claim a feature is complete until it is implemented and checked.
-
-Run the appropriate install, migration, seed, typecheck, lint, tests and build commands where possible.
-
-If a command cannot run due to environment restrictions, document that limitation rather than claiming success.
-
-Make it possible to start locally with clear commands in the README.
-
-Finally, summarize what was built, provide the commands to run it, explain what is demonstrated versus production-ready, and identify the next highest-value product improvements.
-
-SUCCESS CONDITION:
-
-I should be able to open Faymio locally, view a beautiful professional dashboard, manage a sample skincare campaign, add talent, track deliverables and approvals, create a campaign from a brief, and use an AI-assisted operations interface.
-
-All important workflows should persist to the database and behave consistently.
-
-Build Faymio as a serious early-stage SaaS product, not a decorative prototype.
+Highest-value next product steps: authenticated agency teams and roles, a brand-facing approval portal, versioned asset uploads, and human-approved reminders with a durable notification queue.
