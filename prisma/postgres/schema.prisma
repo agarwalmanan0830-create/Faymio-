@@ -1,0 +1,224 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Organization {
+  id           String               @id @default(cuid())
+  name         String
+  isDemo       Boolean              @default(false)
+  users        User[]
+  talent       Talent[]
+  brands       Brand[]
+  campaigns    Campaign[]
+  assignments  CampaignAssignment[]
+  deliverables Deliverable[]
+  approvals    Approval[]
+  tasks        Task[]
+  payments     PaymentRecord[]
+  activity     ActivityLog[]
+  aiRequests   AIRequestLog[]
+  briefDrafts  BriefDraft[]
+  createdAt    DateTime             @default(now())
+}
+
+model User {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  name           String
+  email          String
+  createdAt      DateTime     @default(now())
+
+  @@unique([organizationId, email])
+}
+
+model Talent {
+  id              String               @id @default(cuid())
+  organizationId  String
+  organization    Organization         @relation(fields: [organizationId], references: [id])
+  fullName        String
+  category        String
+  email           String
+  phone           String?
+  city            String
+  links           String               @default("")
+  contentCategory String               @default("")
+  languages       String               @default("")
+  representation  String               @default("")
+  rateMinPaise    Int?
+  rateMaxPaise    Int?
+  availability    String               @default("AVAILABLE")
+  notes           String               @default("")
+  verified        Boolean              @default(false)
+  isDemo          Boolean              @default(false)
+  deletedAt       DateTime?
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+  assignments     CampaignAssignment[]
+
+  @@index([organizationId, deletedAt])
+}
+
+model Brand {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  name           String
+  isDemo         Boolean      @default(false)
+  campaigns      Campaign[]
+
+  @@unique([organizationId, name])
+}
+
+model Campaign {
+  id               String               @id @default(cuid())
+  organizationId   String
+  organization     Organization         @relation(fields: [organizationId], references: [id])
+  brandId          String
+  brand            Brand                @relation(fields: [brandId], references: [id])
+  name             String
+  budgetPaise      Int
+  startDate        DateTime
+  endDate          DateTime
+  manager          String
+  status           String               @default("DRAFT")
+  objective        String               @default("")
+  requiredCategory String               @default("Influencer")
+  creatorCount     Int                  @default(1)
+  deliverableBrief String               @default("")
+  approvalRequired Boolean              @default(true)
+  isDemo           Boolean              @default(false)
+  deletedAt        DateTime?
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+  assignments      CampaignAssignment[]
+  tasks            Task[]
+  activity         ActivityLog[]
+
+  @@index([organizationId, deletedAt, status])
+}
+
+model CampaignAssignment {
+  id             String         @id @default(cuid())
+  organizationId String
+  organization   Organization   @relation(fields: [organizationId], references: [id])
+  campaignId     String
+  campaign       Campaign       @relation(fields: [campaignId], references: [id])
+  talentId       String
+  talent         Talent         @relation(fields: [talentId], references: [id])
+  task           String
+  dueDate        DateTime
+  status         String         @default("INVITED")
+  deliverable    Deliverable?
+  approval       Approval?
+  payment        PaymentRecord?
+  tasks          Task[]
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  @@unique([campaignId, talentId])
+  @@index([organizationId, campaignId])
+}
+
+model Deliverable {
+  id             String             @id @default(cuid())
+  organizationId String
+  organization   Organization       @relation(fields: [organizationId], references: [id])
+  assignmentId   String             @unique
+  assignment     CampaignAssignment @relation(fields: [assignmentId], references: [id])
+  status         String             @default("NOT_STARTED")
+  url            String?
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+
+  @@index([organizationId, status])
+}
+
+model Approval {
+  id             String             @id @default(cuid())
+  organizationId String
+  organization   Organization       @relation(fields: [organizationId], references: [id])
+  assignmentId   String             @unique
+  assignment     CampaignAssignment @relation(fields: [assignmentId], references: [id])
+  status         String             @default("NOT_REQUIRED")
+  reviewedAt     DateTime?
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+
+  @@index([organizationId, status])
+}
+
+model Task {
+  id             String              @id @default(cuid())
+  organizationId String
+  organization   Organization        @relation(fields: [organizationId], references: [id])
+  campaignId     String
+  campaign       Campaign            @relation(fields: [campaignId], references: [id])
+  assignmentId   String?
+  assignment     CampaignAssignment? @relation(fields: [assignmentId], references: [id])
+  title          String
+  dueDate        DateTime
+  status         String              @default("OPEN")
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+
+  @@index([organizationId, status, dueDate])
+}
+
+model PaymentRecord {
+  id             String             @id @default(cuid())
+  organizationId String
+  organization   Organization       @relation(fields: [organizationId], references: [id])
+  assignmentId   String             @unique
+  assignment     CampaignAssignment @relation(fields: [assignmentId], references: [id])
+  amountPaise    Int                @default(0)
+  status         String             @default("NOT_INVOICED")
+  followUp       Boolean            @default(false)
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+
+  @@index([organizationId, status, followUp])
+}
+
+model ActivityLog {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  campaignId     String?
+  campaign       Campaign?    @relation(fields: [campaignId], references: [id])
+  message        String
+  createdAt      DateTime     @default(now())
+
+  @@index([organizationId, createdAt])
+}
+
+model AIRequestLog {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  operation      String
+  durationMs     Int?
+  mode           String
+  status         String
+  createdAt      DateTime     @default(now())
+
+  @@index([organizationId, createdAt])
+}
+
+model BriefDraft {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  title          String       @default("Untitled brief")
+  content        String
+  structuredJson String
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@index([organizationId, updatedAt])
+}

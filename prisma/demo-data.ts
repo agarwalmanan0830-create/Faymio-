@@ -451,7 +451,7 @@ export async function seedDemo(db: PrismaClient) {
         },
       });
     },
-    { timeout: 30_000 },
+    { timeout: 60_000, maxWait: 10_000 },
   );
 
   console.log(

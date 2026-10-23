@@ -16,7 +16,9 @@
     "setup": "npm run db:generate && npm run db:migrate && npm run db:seed",
     "format": "prettier --write src tests prisma scripts *.ts *.mjs *.json *.md",
     "demo": "node scripts/demo.mjs",
-    "test:launcher": "node --test tests/demo-launcher.test.mjs"
+    "test:launcher": "node --test tests/demo-launcher.test.mjs",
+    "vercel-build": "node scripts/vercel-build.mjs",
+    "test:deployment": "node --test tests/vercel-build.test.mjs"
   },
   "dependencies": {
     "@prisma/client": "6.19.0",

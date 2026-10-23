@@ -3,3 +3,4 @@
 *.command text eol=lf
 # Prisma's generated SQL includes a trailing blank line.
 prisma/migrations/** whitespace=blank-at-eol,space-before-tab,-blank-at-eof
+prisma/postgres/migrations/** whitespace=blank-at-eol,space-before-tab,-blank-at-eof

@@ -1,6 +1,6 @@
 # Faymio verification
 
-Checks were executed in the managed Linux workspace on 22 October 2026. The saved logs and Playwright report were independently reviewed on 23 October 2026; no new test run was needed for that review. All fixture data is fictional.
+Initial application and browser checks ran in the managed Linux workspace on 22 October 2026. The saved browser report was independently reviewed on 23 October 2026. Launcher and PostgreSQL deployment checks, plus the final Vitest rerun, ran on 23 October 2026. All fixture data is fictional.
 
 | Check                     | Result                                                      |
 | ------------------------- | ----------------------------------------------------------- |
@@ -10,7 +10,7 @@ Checks were executed in the managed Linux workspace on 22 October 2026. The save
 | Repeatable seed           | Passed; existing demo edits preserved                       |
 | `npm run setup`           | Passed end to end                                           |
 | TypeScript                | Passed                                                      |
-| Vitest                    | **50 tests passed across 4 suites**                         |
+| Vitest                    | **54 tests passed across 5 suites** in the final rerun      |
 | Optimized Next.js build   | Passed; all application routes built                        |
 | ESLint                    | Passed; final run reported no errors or warnings            |
 | Chromium browser journeys | **2 passed**, no failures, skips, flaky results, or retries |
@@ -22,6 +22,8 @@ Fourteen integration tests exercise actual Prisma records in disposable SQLite d
 Fifteen origin-validation tests cover internal hostname normalization, matching browser-facing hosts, invalid or foreign origins, explicit canonical origins, and rejection of untrusted forwarded headers.
 
 Twenty-one AI tests cover deterministic parsing, Indian currency, missing fields and start-date warnings, approvals/overdue/payments/summary/reminder answers from stored records, unsupported and unknown-campaign questions, provider malformed-output/timeout fallback, validation of supported read-only model routing, and rate-limit windows.
+
+Four database-configuration tests verify connection-variable precedence and the Vercel PostgreSQL URL aliases. These bring the final Vitest total to 54 tests across five suites.
 
 ## Completed browser journeys
 
@@ -53,7 +55,7 @@ The desktop journey also recorded no unhandled page errors. Browser coverage is 
 
 ## Saved check evidence
 
-`work/tests-final.log` records 50 Vitest tests passing across four suites in 23.70 seconds: 14 database integration tests, 16 AI parsing/operations tests, five AI-server tests, and 15 origin-validation tests. `work/lint-final.log` contains the completed ESLint command with no diagnostics. `work/build-final.log` records a successful optimized Next.js 15.5.9 build, including lint/type validation, all 17 generated static pages, and the dynamic API/campaign routes. No application source changed after these passing checks.
+`work/tests-final.log` records the original 50 Vitest tests passing across four suites in 23.70 seconds. `work/lint-final.log` contains the completed ESLint command with no diagnostics. `work/build-final.log` records the initial successful optimized Next.js 15.5.9 build, including lint/type validation, all 17 generated static pages, and the dynamic API/campaign routes. Subsequent launcher and PostgreSQL checks and the final 54-test result are recorded below.
 
 Copies of the completed build, Vitest and lint logs, the self-contained browser report, and screenshots are included under `docs/verification/` and `docs/screenshots/` so this evidence remains available in downloaded source.
 
@@ -80,3 +82,20 @@ FAYMIO_PORT=3010 DATABASE_URL=file:/tmp/faymio-local-launcher-check.db FAYMIO_NO
 ```
 
 The launcher tests and real startup ran on managed Linux with Node.js 24.19.0. **The Windows `.bat` and macOS `.command` helpers were not executed on their native operating systems.** Their browser commands were checked by unit tests; automatic GUI browser opening was skipped in this headless environment. Existing dependencies were used for the full startup checks; detection of missing dependencies was unit-tested, and the fresh-install path invokes `npm ci --include=dev` so development dependencies are installed even when `NODE_ENV=production` is inherited. Loopback tests require the environment's supported network-enabled execution because the default sandbox blocks local listeners.
+
+## PostgreSQL and Vercel build verification — 23 October 2026
+
+Verification used an actual disposable PostgreSQL 16 Docker container bound only to **127.0.0.1:5433**. Its generated password stayed in process memory and child environment variables; build and runtime logs were redacted before saving. No hosted database or paid service was created.
+
+- PostgreSQL Prisma Client generation and the checked-in PostgreSQL migration passed.
+- The real database produced the exact GlowLab seed metrics: **20 assigned, 16 confirmed, 11 published, four pending approvals, two overdue tasks, and three payment follow-ups**.
+- The guarded integration script passed talent creation/edit/archive, retained assignment history, campaign creation, confirmation, submission, requested changes, resubmission, approval, publication, and foreign organization/nested-ID denial checks.
+- **The complete `npm run vercel-build` passed against PostgreSQL**, including repeatable migrations, preservation of existing demo edits, compilation, lint/type validation, 17 static pages, dynamic routes, and build traces.
+- A production Next.js server on **127.0.0.1:3011** returned **200** for the workspace API and `/dashboard`, `/talent`, `/briefs`, `/campaigns/glow-lab`, `/assistant`, `/campaigns`, `/activity`, and `/settings`. HTTP talent creation, editing, a subsequent persisted read, and archival also passed against PostgreSQL.
+- The test server and disposable database container were removed. The **SQLite Prisma Client was restored**, then **all 54 Vitest tests passed across five suites in 11.14 seconds**.
+
+The guarded script is `tests/postgres.integration.ts`; it refuses nonlocal targets and requires explicit `FAYMIO_POSTGRES_TEST=true`. It is intentionally excluded from the ordinary SQLite Vitest run.
+
+Safe copies of the completed evidence are included in `docs/verification/postgres-build.log`, `postgres-integration.log`, `postgres-runtime.log`, and `tests-postgres-restored.log`. The PostgreSQL build log is the final successful run.
+
+**An actual Vercel deployment and a hosted Neon/PostgreSQL connection were not verified.** Those require the user's Vercel/database account connection and deployment environment variables. The local PostgreSQL build/runtime checks validate the application and deployment build path, not Vercel account configuration, hosted TLS/pooling, or a published URL.

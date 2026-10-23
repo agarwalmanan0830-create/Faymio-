@@ -24,6 +24,20 @@ npm run demo
 
 The image above is a screenshot of the working demonstration workspace.
 
+## Deploy the demo on Vercel
+
+The app source is on **`codex/faymio-mvp`** in [pull request #1](https://github.com/agarwalmanan0830-create/Faymio-/pull/1). A deployment of the old README-only `main` commit cannot serve the application. Connect the database and environment variables **before** merging that pull request to trigger a new production deployment.
+
+1. In the Vercel project, open **Storage → Create Database** (or Marketplace) and choose **Neon / PostgreSQL**, using its free plan. Connect it to the Faymio project with the default environment-variable names. Select **Production**; previews should use a separate database or Neon's preview branching so testing cannot edit the production demo.
+2. Confirm the integration added **`DATABASE_URL`** and **`DATABASE_URL_UNPOOLED`**. The first is the pooled application connection; the second is the direct migration connection. Keep both values in Vercel, never in a commit or chat. The adapter also accepts `POSTGRES_PRISMA_URL` / `POSTGRES_URL` and `DIRECT_URL` / `POSTGRES_URL_NON_POOLING` from other integrations.
+3. Under **Environment Variables**, add `DEMO_MODE` = `true` and `ALLOW_DEMO_IN_PRODUCTION` = `true` for Production (and Preview only if you are deploying a preview). An OpenAI key is optional; without it the complete app uses the labeled Demo AI mode. Never copy the local SQLite `file:` URL into Vercel.
+4. Under **Settings → Build and Deployment**, select **Next.js** and leave the root at the repository root, where `package.json` lives. Turn off any custom Output Directory override. The committed `vercel.json` supplies `npm ci --include=dev` and `npm run vercel-build`; remove any old dashboard override that points to another command. Node.js 22.x or 24.x is supported.
+5. Open [pull request #1](https://github.com/agarwalmanan0830-create/Faymio-/pull/1), review and merge it into `main`. Vercel should create a **new** deployment from the application commit. Wait for Ready, then click **Visit**. Redeploying the old README-only commit does not update its source. For an unmerged preview instead, use **Deployments → Create Deployment** with `codex/faymio-mvp` after configuring Preview's separate database and variables.
+
+The deployment build generates the PostgreSQL Prisma Client, applies the PostgreSQL migration, seeds fictional records without replacing existing edits, and builds Next.js. It stops with a readable error if the database or explicit demo flags are missing. Runtime connections use the same integration URL precedence as the build. `APP_ORIGIN` is optional; if set, it must exactly match the browser-facing origin (for example `https://faymio.vercel.app`). Leave it unset when using multiple preview URLs.
+
+This is a shared, editable demonstration identity. Anyone admitted to the deployed demo can access its fictional workspace; enable Vercel deployment protection where available and use fictional data only. Hosted PostgreSQL provides persistence but does not add customer authentication. Local development continues to use SQLite. See [the Vercel example variables](.env.vercel.example) and the production requirements below.
+
 ## Run locally
 
 Requires **Node.js 22.12+**, npm, and a writable local disk. No paid service is required.
@@ -60,7 +74,7 @@ ALLOW_DEMO_IN_PRODUCTION=true npm start
 
 ## Architecture
 
-Next.js 15 App Router, React 19, TypeScript, Tailwind CSS, Radix primitives with local shadcn-style components, Lucide, Recharts 2, Prisma 6, SQLite, Zod, Sonner, Vitest, and Playwright. Stable pinned dependency versions and `package-lock.json` make installation repeatable. Recharts 2 is retained for its compatible React dashboard API; evaluate Recharts 3 and current security-patched dependencies before production deployment.
+Next.js 15 App Router, React 19, TypeScript, Tailwind CSS, Radix primitives with local shadcn-style components, Lucide, Recharts 2, Prisma 6, SQLite locally / PostgreSQL on Vercel, Zod, Sonner, Vitest, and Playwright. Stable pinned dependency versions and `package-lock.json` make installation repeatable. Recharts 2 is retained for its compatible React dashboard API; evaluate Recharts 3 and current security-patched dependencies before production deployment.
 
 ```text
 src/app/                 Routes, screens, and server API handlers
@@ -71,9 +85,11 @@ src/server/              Organization context, validation, transaction services
 src/types/               Serialized application contracts
 prisma/schema.prisma     Relational model and organization ownership fields
 prisma/migrations/       Checked-in SQLite migration
+prisma/postgres/         Matching PostgreSQL schema and migration for Vercel
 prisma/demo-data.ts      Shared, repeatable demonstration fixture
 prisma/seed.ts           CLI seed entrypoint
 scripts/migrate.mjs      Safe SQLite file preparation and migration runner
+scripts/vercel-build.mjs Guarded PostgreSQL migration/seed and Vercel build
 tests/                   Isolated database, AI, and browser journey tests
 ```
 
@@ -81,7 +97,7 @@ All reads and mutations resolve the organization on the server. Browser-supplied
 
 **Money:** integer paise throughout the database and APIs. ₹2,00,000 is `20_000_000` paise. Values must be nonnegative integers within the Prisma Int range. **Dates:** stored UTC; display uses Indian dates and Asia/Kolkata. A deadline is overdue once its exact stored timestamp has passed. The seed uses dates relative to the day it is first run; its overdue records stay overdue until completed.
 
-The PostgreSQL migration path requires changing the Prisma datasource, generating PostgreSQL migrations, migrating/validating data, and reviewing indexes/concurrency behavior. The checked-in SQL is SQLite-specific.
+Local setup explicitly uses the SQLite schema. Vercel explicitly generates its client from `prisma/postgres/schema.prisma` and applies the separate PostgreSQL migration. Models are identical and schema parity is tested. After a PostgreSQL build, run `npm run setup` before returning to local SQLite development; Prisma Client is generated for one provider at a time. These are separate demo databases, not an automatic migration of existing SQLite records. Keep both schemas and migration histories aligned when adding fields.
 
 ## The seeded GlowLab campaign
 
@@ -124,6 +140,7 @@ npm run typecheck
 npm run lint
 npm test
 npm run test:launcher
+npm run test:deployment
 npm run build
 npm run test:e2e
 ```
