@@ -1,0 +1,8 @@
+node_modules
+.next
+work
+public/fonts
+prisma/migrations
+package-lock.json
+playwright-report
+test-results

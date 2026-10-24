@@ -1,0 +1,92 @@
+export type Talent = {
+  id: string;
+  fullName: string;
+  category: string;
+  email: string;
+  phone: string | null;
+  city: string;
+  links: string;
+  contentCategory: string;
+  languages: string;
+  representation: string;
+  rateMinPaise: number | null;
+  rateMaxPaise: number | null;
+  availability: string;
+  notes: string;
+  verified: boolean;
+  createdAt: string;
+  updatedAt: string;
+};
+export type Deliverable = { id: string; status: string; url: string | null };
+export type Approval = { id: string; status: string };
+export type Payment = {
+  id: string;
+  amountPaise: number;
+  status: string;
+  followUp: boolean;
+};
+export type Assignment = {
+  id: string;
+  talentId: string;
+  talent: Talent;
+  task: string;
+  dueDate: string;
+  status: string;
+  deliverable: Deliverable | null;
+  approval: Approval | null;
+  payment: Payment | null;
+};
+export type Task = {
+  id: string;
+  title: string;
+  dueDate: string;
+  status: string;
+  assignmentId: string | null;
+};
+export type Campaign = {
+  id: string;
+  name: string;
+  brandId: string;
+  brand: { name: string };
+  budgetPaise: number;
+  startDate: string;
+  endDate: string;
+  manager: string;
+  status: string;
+  objective: string;
+  requiredCategory: string;
+  creatorCount: number;
+  deliverableBrief: string;
+  approvalRequired: boolean;
+  assignments: Assignment[];
+  tasks: Task[];
+  createdAt: string;
+  updatedAt: string;
+};
+export type Activity = {
+  id: string;
+  message: string;
+  campaignId: string | null;
+  createdAt: string;
+};
+export type Workspace = {
+  organization: { id: string; name: string };
+  user: { name: string; email: string };
+  talent: Talent[];
+  campaigns: Campaign[];
+  activity: Activity[];
+  aiMode: "demo" | "live";
+};
+export type Brief = {
+  brandName: string;
+  campaignName: string;
+  objective: string;
+  budgetPaise: number;
+  requiredCategory: string;
+  creatorCount: number;
+  deliverables: string;
+  approvalRequired: boolean;
+  durationDays: number;
+  startDate: string;
+  missingInformation: string[];
+};

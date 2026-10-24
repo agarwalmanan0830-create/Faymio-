@@ -1,0 +1,32 @@
+
+> faymio@1.0.0 test
+> vitest run
+
+
+ RUN  v3.2.4 /workspace/Faymio-
+
+stdout | tests/backend.test.ts
+Faymio DEMO DATA seeded: 24 fictional talent, 4 fictional campaigns, GlowLab 20 assigned / 16 confirmed / 11 published / 4 pending approvals / 2 overdue tasks / 3 payment follow-ups.
+
+stdout | tests/backend.test.ts > persisted demonstration data > preserves saved changes when the seed script is rerun
+Faymio DEMO DATA already exists. Existing workspace changes were preserved.
+
+ ✓ tests/backend.test.ts (14 tests) 3908ms
+   ✓ talent and campaign persistence > persists assignments and rejects duplicate or archived talent assignments  455ms
+   ✓ execution transitions, approval, and payment records > requires confirmation and URL, then supports changes, resubmission, approval, and publication  689ms
+   ✓ execution transitions, approval, and payment records > records fixed-precision invoices and clears follow-up when marked paid  310ms
+ ✓ tests/ai.test.ts (16 tests) 182ms
+ ✓ tests/database-config.test.ts (4 tests) 46ms
+ ✓ tests/ai-server.test.ts (5 tests) 26ms
+ ✓ tests/context.test.ts (15 tests) 46ms
+
+ Test Files  5 passed (5)
+      Tests  54 passed (54)
+   Start at  18:44:11
+   Duration  11.14s (transform 757ms, setup 0ms, collect 1.47s, tests 4.21s, environment 3ms, prepare 1.31s)
+
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.1
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.1
+npm notice To update run: npm install -g npm@12.2.1
+npm notice

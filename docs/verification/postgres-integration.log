@@ -1,0 +1,10 @@
+POSTGRES PASS: exact persisted GlowLab seed metrics (20 assigned / 16 confirmed / 11 published / 4 approvals / 2 overdue / 3 payment follow-ups)
+POSTGRES PASS: talent create/edit/archive, retained history, campaign creation and full submit/review/publish workflow
+POSTGRES PASS: foreign organization IDs and nested relation IDs denied without disclosure or writes
+POSTGRES: running the complete npm run vercel-build against the disposable database
+POSTGRES PASS: exact persisted GlowLab seed metrics (20 assigned / 16 confirmed / 11 published / 4 approvals / 2 overdue / 3 payment follow-ups)
+POSTGRES PASS: talent create/edit/archive, retained history, campaign creation and full submit/review/publish workflow
+POSTGRES PASS: foreign organization IDs and nested relation IDs denied without disclosure or writes
+POSTGRES: running the complete npm run vercel-build against the disposable database
+POSTGRES PASS: full guarded Vercel build, repeatable migrations and seed
+POSTGRES PASS: production workspace API, all eight application routes, and HTTP talent create/edit/reload/archive

@@ -1,0 +1,28 @@
+
+> faymio@1.0.0 test
+> vitest run
+
+
+ RUN  v3.2.4 /workspace/Faymio-
+
+stdout | tests/backend.test.ts
+Faymio DEMO DATA seeded: 24 fictional talent, 4 fictional campaigns, GlowLab 20 assigned / 16 confirmed / 11 published / 4 pending approvals / 2 overdue tasks / 3 payment follow-ups.
+
+stdout | tests/backend.test.ts > persisted demonstration data > preserves saved changes when the seed script is rerun
+Faymio DEMO DATA already exists. Existing workspace changes were preserved.
+
+ ✓ tests/backend.test.ts (14 tests) 9628ms
+   ✓ execution transitions, approval, and payment records > requires confirmation and URL, then supports changes, resubmission, approval, and publication  1006ms
+   ✓ execution transitions, approval, and payment records > publishes submitted work directly when content approval is explicitly not required  354ms
+   ✓ execution transitions, approval, and payment records > records fixed-precision invoices and clears follow-up when marked paid  469ms
+   ✓ execution transitions, approval, and payment records > adds overdue operational tasks to the persisted action queue and removes completed work  456ms
+   ✓ organization ownership and safe export > blocks manipulated IDs and nested relation IDs without disclosing or changing foreign data  1981ms
+   ✓ organization ownership and safe export > quotes CSV fields, retains rupee amounts as paise, and neutralizes spreadsheet formulas  496ms
+ ✓ tests/ai.test.ts (16 tests) 189ms
+ ✓ tests/ai-server.test.ts (5 tests) 53ms
+ ✓ tests/context.test.ts (15 tests) 373ms
+
+ Test Files  4 passed (4)
+      Tests  50 passed (50)
+   Start at  12:51:44
+   Duration  23.70s (transform 4.01s, setup 0ms, collect 4.99s, tests 10.24s, environment 41ms, prepare 2.89s)
